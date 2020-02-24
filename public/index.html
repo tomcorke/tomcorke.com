@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>tomcorke.com</title>
+    <style type="text/css">
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-size: 12px;
+        font-family: sans-serif;
+      }
+      #outer {
+        position: relative;
+        margin-top: 20%;
+        margin-left: 50%;
+      }
+      #inner {
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform: translate(-50%, -50%);
+      }
+      #quote {
+        background-color: #1ba1e2;
+        color: white;
+        cursor: pointer;
+        padding: 10px;
+        max-width: 400px;
+      }
+      #quote-body {
+        text-align: left;
+        font-family: monospace;
+      }
+      #quote-body:before {
+        content: '"';
+      }
+      #quote-body:after {
+        content: '"';
+      }
+      #quote-author {
+        margin-top: 1em;
+        text-align: right;
+        font-style: italic;
+      }
+      #quote-author:before {
+        content: "- ";
+      }
+    </style>
+    <!-- now on gh -->
+  </head>
+  <body>
+    <div id="outer">
+      <div id="inner">
+        <div id="quote">
+          <div id="quote-body"></div>
+          <div id="quote-author"></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      (function() {
+        var quotes = [
+          {
+            body:
+              "The most effective debugging tool is still careful thought, coupled with judiciously placed print statements.",
+            author: "Brian W Kernighan"
+          },
+          {
+            body:
+              "Compatibility means deliberately repeating other people's mistakes.",
+            author: "David Wheeler"
+          },
+          {
+            body:
+              "It always takes longer than you expect, even when you take into account Hofstadter's Law",
+            author: "Hofstadter's Law, Douglas Hofstadter"
+          },
+          {
+            body:
+              "I (...) am rarely happier than when spending an entire day programming my computer to perform automatically a task that would otherwise take me a good ten seconds to do by hand.",
+            author: "Douglas Adams"
+          },
+          {
+            body:
+              "I love deadlines. I like the whooshing sound they make as they fly by.",
+            author: "Douglas Adams"
+          },
+          {
+            body:
+              "Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.",
+            author: "John Woods"
+          },
+          {
+            body: "Premature optimisation is the root of all evil",
+            author: "Donald Knuth"
+          },
+          {
+            body:
+              "Sometimes it pays to stay in bed on Monday, rather than spending the rest of the week debugging Monday's code.",
+            author: "Dan Salomon"
+          },
+          {
+            body:
+              "A common mistake that people make when trying to design something completely foolproof is to underestimate the ingenuity of complete fools.",
+            author: "Douglas Adams"
+          }
+        ];
+        var currentQuote = null;
+
+        function TextTransformer(element, toText, onStep) {
+          var self = this;
+          this.element = element;
+          this.fromText = element.innerHTML || "";
+          this.currentText = this.fromText;
+          this.toText = toText;
+          this.onStep = onStep;
+
+          var timer = null;
+          var timerTimeout = 15;
+
+          var characterList =
+            "abcdef ghij klm nopqr stuvwxyz ABC DE FGH IJKL MNO PQRSTU VWXYZ";
+
+          function GetRandomCharacter() {
+            return characterList.substr(
+              Math.floor(Math.random() * characterList.length),
+              1
+            );
+          }
+
+          function Splice(source, index, count, add) {
+            return (
+              source.slice(0, index) + (add || "") + source.slice(index + count)
+            );
+          }
+
+          this.TransformStep = function() {
+            // If change required, make change
+            if (this.currentText != this.toText) {
+              if (this.toText.length > this.currentText.length) {
+                // If toText is longer than currentText insert a random character in a random location
+                var index = Math.floor(Math.random() * this.currentText.length);
+                this.currentText = Splice(
+                  this.currentText,
+                  index,
+                  0,
+                  GetRandomCharacter()
+                );
+              } else if (this.currentText.length > this.toText.length) {
+                // If currentText is longer than toText remove a random character
+                var index = Math.floor(Math.random() * this.currentText.length);
+                this.currentText = Splice(this.currentText, index, 1);
+              }
+
+              var swapCounter = 0;
+              var maxSwapCounter = 2;
+              while (
+                this.currentText != this.toText &&
+                this.toText &&
+                this.toText.length > 0 &&
+                swapCounter < maxSwapCounter
+              ) {
+                // Swap a random incorrect character for the correct character
+                var index = -1;
+                while (
+                  index == -1 ||
+                  this.currentText.slice(index, index + 1) ==
+                    this.toText.slice(index, index + 1)
+                ) {
+                  index = Math.min(
+                    Math.floor(Math.random() * this.currentText.length),
+                    this.toText.length
+                  );
+                }
+                this.currentText = Splice(
+                  this.currentText,
+                  index,
+                  1,
+                  this.toText.slice(index, index + 1)
+                );
+                swapCounter++;
+              }
+
+              if (this.onStep) {
+                this.onStep.bind(this);
+                this.onStep();
+              }
+
+              // If change still required, set timer for next change
+              if (this.currentText != this.toText) {
+                timer = window.setTimeout(function() {
+                  self.TransformStep();
+                }, timerTimeout);
+              }
+            }
+          };
+
+          this.Start = function() {
+            this.TransformStep();
+          };
+        }
+
+        function TransformTextElement(id, toText) {
+          var element = document.getElementById(id);
+          var transformer = new TextTransformer(element, toText, function() {
+            document.getElementById(id).innerHTML = this.currentText;
+          });
+          transformer.Start();
+        }
+
+        function SetQuote(quote, instant) {
+          currentQuote = quote;
+          if (quote) {
+            if (instant) {
+              document.getElementById("quote-body").innerHTML = quote.body;
+              document.getElementById("quote-author").innerHTML = quote.author;
+            } else {
+              TransformTextElement("quote-body", quote.body);
+              TransformTextElement("quote-author", quote.author);
+            }
+          }
+        }
+
+        function ChangeQuote(instant) {
+          var quote;
+
+          if (!quotes || quotes.length == 0) {
+            return;
+          }
+
+          if (currentQuote && quotes.length == 1) {
+            return;
+          }
+
+          while (!quote || quote == currentQuote) {
+            quote = quotes[Math.floor(Math.random() * quotes.length)];
+          }
+
+          SetQuote(quote, instant);
+        }
+
+        ChangeQuote(true);
+
+        document.getElementById("quote").addEventListener("click", function() {
+          ChangeQuote(false);
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "tomcorke.com",
+  "homepage": "https://www.tomcorke.com",
+  "version": "1.0.0",
+  "description": "Tomcorke.com",
+  "dependencies": {
+    "gh-pages": "^2.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "deploy": "gh-pages -d public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomcorke/tomcorke.com.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tomcorke/tomcorke.com/issues"
+  }
+}
