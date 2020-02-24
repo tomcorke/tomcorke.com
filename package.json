@@ -4,10 +4,12 @@
   "version": "1.0.0",
   "description": "Tomcorke.com",
   "dependencies": {
-    "gh-pages": "^2.2.0"
+    "gh-pages": "^2.2.0",
+    "serve": "^11.3.0"
   },
   "devDependencies": {},
   "scripts": {
+    "start": "serve public",
     "deploy": "gh-pages -d public"
   },
   "repository": {
